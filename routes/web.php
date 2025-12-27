@@ -4,9 +4,62 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Resultat;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
+
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+
+
+
+/* ================= GOOGLE LOGIN ================= */
+
+/* REDIRECTION GOOGLE */
+Route::get('/auth/google', function () {
+     return Socialite::driver('google')
+    ->stateless()
+    ->redirect();
+
+})->name('google.login');
+
+/* CALLBACK GOOGLE */
+Route::get('/auth/google/callback', function () {
+
+    $googleUser = Socialite::driver('google')
+    ->stateless()
+    ->user();
+
+
+    $user = User::where('email', $googleUser->email)->first();
+
+    if (!$user) {
+        $user = User::create([
+            'name'     => $googleUser->name,
+            'email'    => $googleUser->email,
+            'password' => bcrypt(Str::random(16)),
+            'role'     => 'student', // par défaut
+            'email_verified_at' => now(), // IMPORTANT avec middleware verified
+        ]);
+    }
+
+    Auth::login($user);
+
+    /* 🔀 REDIRECTION SELON LE RÔLE */
+    if ($user->role === 'student') {
+        return redirect()->route('dashboardStudent');
+    }
+
+    if ($user->role === 'prof') {
+        return redirect()->route('dashboardProf');
+    }
+
+    // sécurité
+    return redirect('/');
 });
 
 Route::get('/dashboardStudent', function () {
@@ -21,8 +74,6 @@ Route::middleware('auth')->get('/emploi', function () {
    return view('emploiProf', compact('emplois'));
     
 })->name('emploi');
-
-use App\Models\User;
 
 Route::middleware('auth')->get('/liste', function () {
     $listes = User::with('resultats')
