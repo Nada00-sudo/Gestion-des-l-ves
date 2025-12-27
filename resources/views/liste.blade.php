@@ -52,6 +52,9 @@
             <th>Anglais</th>
             <th>Moyenne</th>
             <th>Décision</th>
+            <th>Action</th>
+            <th>Actions</th>
+
         </tr>
     </thead>
     <tbody>
@@ -71,6 +74,26 @@
 
         <td><strong>{{ $res->moyenne ?? '-' }}</strong></td>
         <td>{{ $res->decision ?? '-' }}</td>
+        <td>
+    <form method="POST" action="{{ route('etudiant.delete', $student->id) }}"
+          onsubmit="return confirm('Supprimer cet étudiant ?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit"
+                style="background:#e74c3c; color:white; border:none; padding:5px 10px;">
+            Supprimer
+        </button>
+    </form>
+</td>
+<td class="flex gap-2 justify-center">
+    <a href="{{ route('resultats.edit', $student->id) }}"
+       class="background:blue  text-blue  px-3 py-1 rounded">
+        Modifier
+    </a>
+
+</td>
+
+
     </tr>
 @empty
     <tr>
@@ -80,6 +103,33 @@
 
     </tbody>
 </table>
+<h2></h2>
+<h2></h2>
+<h2>➕ Ajouter un étudiant</h2>
+
+<div class="flex justify-center mb-6">
+    <form method="POST" action="{{ route('etudiant.add') }}"
+          class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-6 rounded-xl shadow-md">
+        @csrf
+
+        <input type="text" name="name" placeholder="Nom complet" required class="border px-3 py-2 rounded">
+        <input type="email" name="email" placeholder="Email" required class="border px-3 py-2 rounded">
+
+        <input type="number" name="note1" placeholder="Mathématiques" step="0.01" required class="border px-3 py-2 rounded">
+        <input type="number" name="note2" placeholder="Informatique" step="0.01" required class="border px-3 py-2 rounded">
+        <input type="number" name="note3" placeholder="Physique" step="0.01" required class="border px-3 py-2 rounded">
+        <input type="number" name="note4" placeholder="Électronique" step="0.01" required class="border px-3 py-2 rounded">
+        <input type="number" name="note5" placeholder="Anglais" step="0.01" required class="border px-3 py-2 rounded">
+
+        <button type="submit"
+            style="padding:8px 15px; background:#2ecc71; color:white; border:none;">
+    Ajouter étudiant
+</button>
+
+
+    </form>
+</div>
+
 
 </body>
 </html>
