@@ -16,6 +16,35 @@ Route::get('/', function () {
 
 
 
+Route::post('/firebase-login', function (Request $request) {
+
+    $response = Http::get(
+        'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=FIREBASE_API_KEY',
+        ['idToken' => $request->token]
+    );
+
+    $firebaseUser = $response['users'][0];
+
+    $user = User::firstOrCreate(
+        ['email' => $firebaseUser['email']],
+        [
+            'name' => $firebaseUser['displayName'] ?? 'Utilisateur',
+            'password' => bcrypt(str()->random(16)),
+            'role' => 'student',
+            'email_verified_at' => now()
+        ]
+    );
+
+    Auth::login($user);
+
+    return response()->json(['success' => true]);
+});
+Route::get('/dashboard', function () {
+    if (auth()->user()->role === 'prof') {
+        return redirect()->route('dashboardProf');
+    }
+    return redirect()->route('dashboardStudent');
+});
 
 /* ================= GOOGLE LOGIN ================= */
 
