@@ -82,18 +82,19 @@ function loginWithGoogle() {
             
 
         </div>
-       <!--<div class="mt-4 text-center flex items-center justify-center">
+       <div class="mt-4 text-center flex items-center justify-center">
             <a href="{{ route('google.login') }}"
        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-white hover:bg-red-700">
         🔐 Se connecter avec Google
     </a>
-</div>-->
+</div>
+<!--
 <div class='flex items-center justify-center'>
 <button onclick="loginWithGoogle()"
 class="bg-red-600 text-white px-4 py-2 rounded mt-4">
   🔐 Se connecter avec Google 
 </button>
 </div>
-
+-->
     </form>
 </x-guest-layout>

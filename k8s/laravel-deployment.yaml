@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: laravel
+  template:
+    metadata:
+      labels:
+        app: laravel
+    spec:
+
+      # InitContainer : crée ET corrige les droits SQLite
+      initContainers:
+        - name: init-sqlite
+          image: laravel-app:latest
+          imagePullPolicy: Never
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /var/www/html/database && \
+              touch /var/www/html/database/database.sqlite && \
+              chown -R www-data:www-data /var/www/html/database && \
+              chmod 664 /var/www/html/database/database.sqlite
+          volumeMounts:
+            - name: sqlite-storage
+              mountPath: /var/www/html/database
+
+      containers:
+        - name: laravel
+          image: laravel-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+
+          env:
+            - name: APP_ENV
+              value: "local"
+            - name: APP_DEBUG
+              value: "true"
+            - name: DB_CONNECTION
+              value: "sqlite"
+
+          volumeMounts:
+            - name: sqlite-storage
+              mountPath: /var/www/html/database/database.sqlite
+              subPath: database.sqlite
+
+          command:
+            - apache2-foreground
+
+      volumes:
+        - name: sqlite-storage
+          persistentVolumeClaim:
+            claimName: sqlite-pvc

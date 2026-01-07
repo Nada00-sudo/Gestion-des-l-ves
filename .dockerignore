@@ -1,0 +1,5 @@
+k8s/
+.git/
+node_modules/
+vendor/
+.env
